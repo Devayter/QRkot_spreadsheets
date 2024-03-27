@@ -70,7 +70,7 @@ requests==2.27.1
 rsa==4.8; python_version >= '3.6'
 six==1.16.0
 sniffio==1.2.0
-sqlalchemy==1.4.36
+sqlalchemy==2.0
 starlette==0.19.1
 toml==0.10.2
 tonyg-rfc3339==0.1
