@@ -1,7 +1,7 @@
 from typing import Optional
 
-from pydantic import EmailStr
-from pydantic_settings import BaseSettings
+from pydantic import BaseSettings, EmailStr
+# from pydantic_settings import BaseSettings для pydantic >= 2.2.1
 
 
 class Settings(BaseSettings):
