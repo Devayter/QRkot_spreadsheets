@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Mapped
+from sqlalchemy import Column, String
 
 from app.models.base import CharityDonation
 
@@ -10,8 +10,8 @@ CHARITYPROJECT_REPRESENTATION = (
 
 
 class CharityProject(CharityDonation):
-    name: Mapped[str]
-    description: Mapped[str]
+    name = Column(String)
+    description = Column(String)
 
     def __repr__(self):
         return (
