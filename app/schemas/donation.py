@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, BaseConfig, Field
 
 from app.schemas.base import CharityProjectDonationBase
 from app.schemas.schemas_examples import DONATION_SCHEMA_EXAMPLE
@@ -13,7 +13,10 @@ class DonationBase(CharityProjectDonationBase):
 
 class DonationCreate(DonationBase):
     full_amount: int = Field(gt=0)
-    model_config = ConfigDict(json_schema_extra=DONATION_SCHEMA_EXAMPLE)  # type: ignore
+
+    class Config:
+        orm_mode = True
+        json_schema_extra = DONATION_SCHEMA_EXAMPLE
 
 
 class DonationDB(BaseModel):
@@ -21,6 +24,9 @@ class DonationDB(BaseModel):
     full_amount: int
     comment: Optional[str]
     create_date: datetime
+
+    class Config:
+        orm_mode = True
 
 
 class DonationSuperUserDB(DonationBase):
