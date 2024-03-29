@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, BaseConfig, Field
+from pydantic import BaseModel, Field
 
 
 MIN_STRING_LENGTH = 1
@@ -16,5 +16,4 @@ class CharityProjectDonationBase(BaseModel):
 
     class Config:
         min_anystr_length = MIN_STRING_LENGTH
-        model_dump = True
         orm_mode = True

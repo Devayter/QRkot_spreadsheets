@@ -1,6 +1,5 @@
 from sqlalchemy import ForeignKey
-from sqlalchemy import Column, ForeignKey, Integer, String
-
+from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import CharityDonation
 
@@ -12,9 +11,8 @@ DONATION_REPRESENTATION = (
 
 
 class Donation(CharityDonation):
-    comment = Column(String, nullable=True)
-    user_id = Column(
-        Integer,
+    comment: Mapped[str] = mapped_column(nullable=True)
+    user_id: Mapped[int] = mapped_column(
         ForeignKey(
             'user.id',
             name='fk_donation_user_id_user'

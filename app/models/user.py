@@ -1,7 +1,5 @@
 from fastapi_users_db_sqlalchemy import SQLAlchemyBaseUserTable
-from pydantic import EmailStr, SecretStr
 from sqlalchemy import Boolean, Column, String
-from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.orm import relationship
 
 from app.core.db import Base

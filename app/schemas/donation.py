@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, BaseConfig, Field
+from pydantic import BaseModel, Field
 
 from app.schemas.base import CharityProjectDonationBase
 from app.schemas.schemas_examples import DONATION_SCHEMA_EXAMPLE

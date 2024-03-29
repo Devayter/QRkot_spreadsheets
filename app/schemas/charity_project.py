@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import BaseConfig, Field
+from pydantic import Field
 
 from app.schemas.base import CharityProjectDonationBase
 from app.schemas.schemas_examples import PROJECT_SCHEMA_EXAMPLE
@@ -21,7 +21,7 @@ class CharityProjectCreate(CharityProjectBase):
 
 
 class CharityProjectUpdate(CharityProjectBase):
-    
+
     class Config:
         json_schema_extra = PROJECT_SCHEMA_EXAMPLE
 
