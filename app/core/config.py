@@ -1,11 +1,6 @@
 from typing import Optional
 
-# для Python 3.9
 from pydantic import BaseSettings, EmailStr
-
-# для Python 3.12
-# from pydantic import EmailStr
-# from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):

@@ -13,7 +13,9 @@ class CRUDCharityProject(CRUDBase):
                 select(
                     CharityProject
                 ).where(CharityProject.fully_invested).order_by(
-                    desc((CharityProject.close_date - CharityProject.create_date))
+                    desc(
+                        CharityProject.close_date - CharityProject.create_date
+                    )
                 )
             )
         ).scalars().all()

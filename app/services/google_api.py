@@ -1,43 +1,56 @@
 from datetime import datetime
+from copy import deepcopy
 
 from aiogoogle import Aiogoogle
 from app.core.config import settings
 
 
+ROW_COUNT = 100
+COLUMN_COUNT = 11
+
 FORMAT = "%Y/%m/%d %H:%M:%S"
+SPREADSHEET_BODY = dict(
+    properties=dict(
+        title='Отчет от {now_date_time}',
+        locale='ru_RU',
+    ),
+    sheets=[dict(properties=dict(
+        sheetType='GRID',
+        title='Лист1',
+        gridProperties=dict(
+            rowCount=ROW_COUNT,
+            columnCount=COLUMN_COUNT,
+        )
+    ))]
+)
+TABLES_HEADER = [
+    ['Отчёт от, {now_date_time}'],
+    ['Топ проектов по скорости закрытия'],
+    ['Название проекта', 'Время сбора', 'Описание']
+]
+
+MAX_ROWS_LIMIT_ERROR = (
+    f'Количество строк превышает {ROW_COUNT}, невозможно создать документ'
+)
 
 
 async def spreadsheets_create(wrapper_services: Aiogoogle) -> str:
     now_date_time = datetime.now().strftime(FORMAT)
     service = await wrapper_services.discover('sheets', 'v4')
-    spreadsheet_body = {
-        'properties': {
-            'title': f'Отчёт на {now_date_time}',
-            'locale': 'ru_RU'
-        },
-        'sheets': [
-            {
-                'properties': {
-                    'sheetType': 'GRID',
-                    'sheetId': 0,
-                    'title': 'Лист1',
-                    'gridProperties': {
-                        'rowCount': 100,
-                        'columnCount': 11
-                    }
-                }
-            }
-        ]
-    }
+    spreadsheet_body = deepcopy(SPREADSHEET_BODY)
+    spreadsheet_body['properties']['title'] = (
+        spreadsheet_body['properties']['title'].format(
+            now_date_time=now_date_time
+        )
+    )
     response = await wrapper_services.as_service_account(
         service.spreadsheets.create(json=spreadsheet_body)
     )
-    spreadsheetid = response['spreadsheetId']
-    return spreadsheetid
+    return response['spreadsheetId'], response['spreadsheetUrl']
 
 
 async def set_user_permissions(
-        spreadsheetid: str,
+        spreadsheet_id: str,
         wrapper_services: Aiogoogle
 ) -> None:
     permissions_body = {
@@ -48,40 +61,47 @@ async def set_user_permissions(
     service = await wrapper_services.discover('drive', 'v3')
     await wrapper_services.as_service_account(
         service.permissions.create(
-            fileId=spreadsheetid,
+            fileId=spreadsheet_id,
             json=permissions_body,
             fields="id"
-        ))
+        )
+    )
 
 
 async def spreadsheets_update_value(
-        spreadsheetid: str,
+        spreadsheet_id: str,
         projects: list,
         wrapper_services: Aiogoogle
 ) -> None:
     now_date_time = datetime.now().strftime(FORMAT)
     service = await wrapper_services.discover('sheets', 'v4')
+    tables_header = deepcopy(TABLES_HEADER)
+    tables_header[0][0] = (
+        tables_header[0][0].format(now_date_time=now_date_time)
+    )
     table_values = [
-        ['Отчёт от', now_date_time],
-        ['Топ проектов по скорости закрытия'],
-        ['Название проекта', 'Время сбора', 'Описание']
-    ]
-    for project in projects:
-        new_row = [
-            str(project.name),
-            str(project.close_date - project.create_date),
-            str(project.description)
+        *tables_header,
+        *[
+            list(map(
+                str,
+                [
+                    project.name,
+                    project.close_date - project.create_date,
+                    project.description
+                ]
+            )) for project in projects
         ]
-        table_values.append(new_row)
-
+    ]
+    if len(table_values) > ROW_COUNT:
+        raise ValueError(MAX_ROWS_LIMIT_ERROR)
     update_body = {
         'majorDimension': 'ROWS',
         'values': table_values
     }
     await wrapper_services.as_service_account(
         service.spreadsheets.values.update(
-            spreadsheetId=spreadsheetid,
-            range='A1:E30',
+            spreadsheetId=spreadsheet_id,
+            range='R1C1:R100C11',
             valueInputOption='USER_ENTERED',
             json=update_body
         )
