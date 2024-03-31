@@ -30,11 +30,12 @@ TABLES_HEADER = [
 ]
 
 MAX_ROWS_LIMIT_ERROR = (
-    f'Количество строк превышает {ROW_COUNT}, невозможно создать документ'
+    'Невозможно создать документ с количеством строк {current_row_count}'
+    'Максимально допустимое количество - {row_count}'
 )
 MAX_COLUMN_LIMIT_ERROR = (
-    f'Количество столбцов превышает {COLUMN_COUNT}, '
-    f'невозможно создать документ'
+    'Невозможно создать документ с количеством стоблцов {current_column_count}'
+    'Максимально допустимое количество - {column_count}'
 )
 
 
@@ -96,10 +97,22 @@ async def spreadsheets_update_value(
             )) for project in projects
         ]
     ]
-    if len(table_values) > ROW_COUNT:
-        raise ValueError(MAX_ROWS_LIMIT_ERROR)
-    if any(len(values) > COLUMN_COUNT for values in table_values):
-        raise ValueError(MAX_COLUMN_LIMIT_ERROR)
+    current_row_count = len(table_values)
+    if current_row_count > ROW_COUNT:
+        raise ValueError(
+            MAX_ROWS_LIMIT_ERROR.format(
+                current_row_count=current_row_count,
+                row_count=ROW_COUNT
+            )
+        )
+    current_column_count = max(len(values) for values in table_values)
+    if current_column_count > COLUMN_COUNT:
+        raise ValueError(
+            MAX_COLUMN_LIMIT_ERROR.format(
+                current_column_count=current_column_count,
+                column_count=COLUMN_COUNT
+            )
+        )
     update_body = {
         'majorDimension': 'ROWS',
         'values': table_values
@@ -107,7 +120,7 @@ async def spreadsheets_update_value(
     await wrapper_services.as_service_account(
         service.spreadsheets.values.update(
             spreadsheetId=spreadsheet_id,
-            range=f'R1C1:R{ROW_COUNT}C{COLUMN_COUNT}',
+            range=f'R1C1:R{current_row_count}C{current_column_count}',
             valueInputOption='USER_ENTERED',
             json=update_body
         )
