@@ -32,6 +32,10 @@ TABLES_HEADER = [
 MAX_ROWS_LIMIT_ERROR = (
     f'Количество строк превышает {ROW_COUNT}, невозможно создать документ'
 )
+MAX_COLUMN_LIMIT_ERROR = (
+    f'Количество столбцов превышает {COLUMN_COUNT}, '
+    f'невозможно создать документ'
+)
 
 
 async def spreadsheets_create(wrapper_services: Aiogoogle) -> str:
@@ -94,6 +98,8 @@ async def spreadsheets_update_value(
     ]
     if len(table_values) > ROW_COUNT:
         raise ValueError(MAX_ROWS_LIMIT_ERROR)
+    if any(len(values) > COLUMN_COUNT for values in table_values):
+        raise ValueError(MAX_COLUMN_LIMIT_ERROR)
     update_body = {
         'majorDimension': 'ROWS',
         'values': table_values
@@ -101,7 +107,7 @@ async def spreadsheets_update_value(
     await wrapper_services.as_service_account(
         service.spreadsheets.values.update(
             spreadsheetId=spreadsheet_id,
-            range='R1C1:R100C11',
+            range=f'R1C1:R{ROW_COUNT}C{COLUMN_COUNT}',
             valueInputOption='USER_ENTERED',
             json=update_body
         )

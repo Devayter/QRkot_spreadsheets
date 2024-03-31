@@ -13,11 +13,11 @@
 Клонировать репозиторий и перейти в него в командной строке:
 
 ```bash
-git@github.com:Devayter/cat_charity_fund.git
+git@github.com:Devayter/QRkot_spreadsheets.git
 ```
 
 ```bash
-cd yacut
+cd QRkot_spreadsheets
 ```
 
 Cоздать и активировать виртуальное окружение:
@@ -143,6 +143,22 @@ http://127.0.0.1:8000/auth/register
   "is_active": true,
   "is_superuser": false,
   "is_verified": false
+}
+```
+
+* Создание файла отчетности
+
+### GET google
+
+```url
+http://127.0.0.1:8000/google/
+```
+
+* Ответ
+
+```json
+{
+"https://docs.google.com/spreadsheets/d/1blu-nlUByfgVMU0LAFU5q5eDMKxZLc3dAo2zWqQoMMw/edit"
 }
 ```
 
