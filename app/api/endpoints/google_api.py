@@ -1,6 +1,5 @@
 from aiogoogle import Aiogoogle
 from fastapi import APIRouter, Depends
-from pydantic import HttpUrl
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import get_async_session
