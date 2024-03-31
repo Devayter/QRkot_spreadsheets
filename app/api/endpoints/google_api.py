@@ -11,9 +11,6 @@ from app.services.google_api import (
 )
 
 
-DOCS_URL = 'https://docs.google.com/spreadsheets/d/{spreadsheet_id}'
-
-
 router = APIRouter()
 
 
