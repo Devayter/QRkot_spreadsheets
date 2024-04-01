@@ -5,8 +5,8 @@ from aiogoogle import Aiogoogle
 from app.core.config import settings
 
 
-ROW_COUNT = 100
-COLUMN_COUNT = 11
+MAX_ROW_COUNT = 100
+MAX_COLUMN_COUNT = 11
 
 FORMAT = "%Y/%m/%d %H:%M:%S"
 SPREADSHEET_BODY = dict(
@@ -18,8 +18,8 @@ SPREADSHEET_BODY = dict(
         sheetType='GRID',
         title='Лист1',
         gridProperties=dict(
-            rowCount=ROW_COUNT,
-            columnCount=COLUMN_COUNT,
+            rowCount=MAX_ROW_COUNT,
+            columnCount=MAX_COLUMN_COUNT,
         )
     ))]
 )
@@ -30,12 +30,12 @@ TABLES_HEADER = [
 ]
 
 MAX_ROWS_LIMIT_ERROR = (
-    'Невозможно создать документ с количеством строк {current_row_count}'
-    'Максимально допустимое количество - {row_count}'
+    'Невозможно создать документ с количеством строк {row_count}. '
+    f'Максимально допустимое количество - {MAX_ROW_COUNT}'
 )
 MAX_COLUMN_LIMIT_ERROR = (
-    'Невозможно создать документ с количеством стоблцов {current_column_count}'
-    'Максимально допустимое количество - {column_count}'
+    'Невозможно создать документ с количеством стоблцов {column_count}. '
+    f'Максимально допустимое количество - {MAX_COLUMN_COUNT}'
 )
 
 
@@ -97,20 +97,18 @@ async def spreadsheets_update_value(
             )) for project in projects
         ]
     ]
-    current_row_count = len(table_values)
-    if current_row_count > ROW_COUNT:
+    row_count = len(table_values)
+    if row_count > MAX_ROW_COUNT:
         raise ValueError(
             MAX_ROWS_LIMIT_ERROR.format(
-                current_row_count=current_row_count,
-                row_count=ROW_COUNT
+                row_count=row_count
             )
         )
-    current_column_count = max(len(values) for values in table_values)
-    if current_column_count > COLUMN_COUNT:
+    column_count = max(map(len, table_values))
+    if column_count > MAX_COLUMN_COUNT:
         raise ValueError(
             MAX_COLUMN_LIMIT_ERROR.format(
-                current_column_count=current_column_count,
-                column_count=COLUMN_COUNT
+                column_count=column_count
             )
         )
     update_body = {
@@ -120,7 +118,7 @@ async def spreadsheets_update_value(
     await wrapper_services.as_service_account(
         service.spreadsheets.values.update(
             spreadsheetId=spreadsheet_id,
-            range=f'R1C1:R{current_row_count}C{current_column_count}',
+            range=f'R1C1:R{row_count}C{column_count}',
             valueInputOption='USER_ENTERED',
             json=update_body
         )
